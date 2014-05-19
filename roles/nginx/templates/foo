@@ -1,0 +1,96 @@
+
+# this is is where the fun staff happens
+server {
+  server_name {{ webserver }};
+  listen  {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}:6081;
+  root {{ gluster_mountpoint }};
+ 
+  # enable the realip module by pointing to Varnish instance
+  set_real_ip_from  127.0.0.1;
+  # local IP
+  set_real_ip_from  {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }};
+  # ip addressess of the load balancers
+  set_real_ip_from  {{ hostvars[groups['lbservers'][0]]['ansible_eth1']['ipv4']['address'] }};
+  set_real_ip_from  {{ hostvars[groups['lbservers'][1]]['ansible_eth1']['ipv4']['address'] }};
+  # real IP is communicated by Carnish in X-Forwarded-For header
+  real_ip_header      X-Forwarded-For; 
+  real_ip_recursive on;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
+
+  # follow symlinks
+  disable_symlinks off;
+
+  access_log /var/log/nginx/{{ webserver }}-access.log;
+  error_log /var/log/nginx/{{ webserver }}-error.log;
+
+  # do not use port number, we are behind varnish and we listen on a different port than 80
+  port_in_redirect off;
+
+  # Allow web fonts from remote locations,
+  # otherwise Firefox and IE blocks it
+  location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
+    add_header Access-Control-Allow-Origin *;
+  }
+  # Enable compression.
+  #gzip_static on;
+
+  location = /favicon.ico {
+    log_not_found off;
+    access_log off;
+  }
+
+  location = /robots.txt {
+    allow all;
+    log_not_found off;
+    access_log off;
+  }
+
+  # Very rarely should these ever be accessed outside of your lan
+  location ~* \.(txt|log)$ {
+    deny all;
+  }
+
+  location ~ \..*/.*\.php$ {
+    return 403;
+  }
+
+  # No no for private
+  location ~ ^/sites/.*/private/ {
+    return 403;
+  }
+ 
+  # Block access to "hidden" files and directories whose names begin with a
+  # period. This includes directories used by version control systems such
+  # as Subversion or Git to store control files.
+  location ~ (^|/)\. {
+    return 403;
+  }
+ 
+  location / {
+    # This is cool because no php is touched for static content
+    try_files $uri @rewrite;
+  }
+ 
+  location @rewrite {
+    rewrite ^ /index.php;
+  }
+ 
+  location ~ \.php$ {
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $request_filename;
+    fastcgi_intercept_errors on;
+    #fastcgi_pass 127.0.0.1:9000;
+    fastcgi_pass unix:/var/tmp/php5-fpm.sock;
+  }
+ 
+  location ~ ^/files/styles/ {
+    try_files $uri @rewrite;
+  }
+ 
+  location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+    expires max;
+    log_not_found off;
+  }
+}
+

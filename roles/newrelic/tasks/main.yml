@@ -1,0 +1,17 @@
+---
+- name: Add NewRelic key
+  apt_key: data="{{ lookup('file', 'newrelic.gpg') }}"
+
+- name: Add NewRelic  repository
+  apt_repository: repo='deb http://apt.newrelic.com/debian/ newrelic non-free'
+
+- name: Install NewRelic
+  apt: name={{ item }}
+  with_items:
+    - newrelic-sysmond
+
+- name: Create NewRelic configuratio file
+  template: src=nrsysmond.cfg dest=/etc/newrelic/nrsysmond.cfg
+  notify:
+    - restart newrelic-sysmond
+

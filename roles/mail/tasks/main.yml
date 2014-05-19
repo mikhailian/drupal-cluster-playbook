@@ -1,0 +1,17 @@
+---
+- name: Install Exim4
+  apt: name=exim4-daemon-light
+
+- name: Start Exim4
+  service: name=exim4 state=started enabled=true
+
+
+- name: Configure Gmail SMTP AUTH for Exim 4
+  template: src=passwd.client dest=/etc/exim4/passwd.client
+  notify:
+     - restart exim4
+
+- name: Update Exim4 configuration
+  template: src=update-exim4.conf.conf dest=/etc/exim4/update-exim4.conf.conf
+  notify:
+     - restart exim4

@@ -1,0 +1,29 @@
+---
+- name: Remove Apache2
+  apt: name=apache2.2-common state=absent
+
+- name: Add dotdeb key
+  apt_key: url=http://www.dotdeb.org/dotdeb.gpg
+
+- name: Add dotdeb repository
+  apt_repository: repo='deb http://packages.dotdeb.org wheezy all'
+
+- name: "Build /etc/hosts file in an idempotent way"
+  lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_eth1.ipv4.address }} {{item}}" state=present
+  when: hostvars[item].ansible_eth1.ipv4.address is defined
+  with_items: groups['all']
+
+- name: Add MariaDB key
+  apt_key: data="{{ lookup('file', 'mariadb.gpg') }}"
+
+- name: Add MariaDB 10.0  repository
+  apt_repository: repo='deb http://mariadb.mirror.nucleus.be//repo/10.0/debian wheezy main' state=present
+
+- name: Install MariaDB 10.0
+  apt: name={{ item }}
+  with_items:
+    - mariadb-client
+    - python-mysqldb
+
+- name: Copy vimrc to root
+  copy: src=vimrc dest=/root/.vimrc force=no

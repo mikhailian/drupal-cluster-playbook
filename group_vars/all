@@ -1,0 +1,6 @@
+# newrelic
+newrelic_license_key: 0000000000000000000000000000000000000000
+newrelic_appname: Foo
+# exim4
+smtp_smarthost: "*.google.com:root@example.com:PASSWORD"
+dc_readhost: foo.com

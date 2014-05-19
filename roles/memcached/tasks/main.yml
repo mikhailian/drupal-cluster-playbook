@@ -1,0 +1,9 @@
+--- 
+  - name: Install Memcached
+    apt: name={{ item }}
+    with_items:
+      - memcached
+
+  - name: Copy /etc/memcached.conf
+    template: src=memcached.conf dest=/etc/memcached.conf
+    notify: restart memcached

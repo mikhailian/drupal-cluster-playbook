@@ -1,0 +1,30 @@
+---
+- name: Add MariaDB key
+  apt_key: data="{{ lookup('file', 'mariadb.gpg') }}"
+
+- name: Add MariaDB 10.0  repository
+  apt_repository: repo='deb http://mariadb.mirror.nucleus.be//repo/10.0/debian wheezy main' state=present
+
+- name: Install MariaDB 10.0
+  apt: name={{ item }}
+  with_items:
+    - mariadb-server
+    - python-mysqldb
+
+- name: Create MySQL configuration file
+  template: src=my.cnf dest=/etc/mysql/my.cnf
+  notify:
+     - restart mysql
+
+- name: Start MySQL
+  service: name=mysql state=started enabled=true
+
+- name: Create database
+  mysql_db: name={{ dbname }} state=present
+
+- name: Create Application DB User
+  mysql_user: name={{ dbuser }} password={{ upassword }} priv={{ dbname }}.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER host='%'
+
+- name: Create Replication User
+  mysql_user: name=repl password={{ replpassword }} priv=*.*:'REPLICATION SLAVE' host='%'
+  when: inventory_hostname == "db01" # create repl user on master only

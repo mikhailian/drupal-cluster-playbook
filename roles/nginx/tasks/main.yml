@@ -1,0 +1,17 @@
+---
+- name: Install nginx
+  apt: name=nginx
+
+- name: Create www-pub group
+  group: name=www-pub
+
+- name: Chown folder to www-data
+  file: path={{ gluster_mountpoint }} group=www-pub mode=2755 state=directory
+
+- name: Copy nginx configuration
+template: src=foo dest=/etc/nginx/sites-available/foo
+  notify: restart nginx
+
+- name: Enable nginx configuration
+  file: src=/etc/nginx/sites-available/foo dest=/etc/nginx/sites-enabled/foo state=link
+  notify: restart nginx

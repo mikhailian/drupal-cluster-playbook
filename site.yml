@@ -1,0 +1,27 @@
+# Common features
+- hosts: cluster:children
+  roles:
+    - common
+    - newrelic
+    - mail
+
+# Configure lbservers
+- hosts: lbservers
+  roles:
+    - varnish
+    - memcached
+
+# Configure webservers
+- hosts: webservers
+  roles:
+    - nginx
+    - php-fpm
+    - newrelic-php5
+    - glusterfs
+    - drush
+
+# Configure  database servers.
+- hosts: dbservers
+  roles:
+    - db
+    - solr-jetty

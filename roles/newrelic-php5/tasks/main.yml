@@ -1,0 +1,10 @@
+- name: Install NewRelic PHP5
+  apt: name={{ item }}
+  with_items:
+    - newrelic-php5
+
+- name: Create NewRelic configuration file
+  template: src=newrelic.ini dest=/etc/php5/fpm/conf.d/newrelic.ini
+  notify:
+    - restart php5-fpm
+

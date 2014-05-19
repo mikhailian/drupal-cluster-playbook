@@ -1,0 +1,12 @@
+# MySQL configuration
+dbuser: foo
+dbname: foo
+upassword: PASSWORD
+replpassword: PASSWORD
+max_connections: 250
+connect_timeout: 5
+wait_timeout: 600
+innodb_buffer_pool_size: 8G
+innodb_io_capacity: 4000
+# do not flush neighbour pages on SSD there's no seek penalty
+innodb_flush_neighbors: 0

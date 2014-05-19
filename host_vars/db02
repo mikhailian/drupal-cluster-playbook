@@ -1,0 +1,2 @@
+# Differenciate between MySQL servers in replication
+server_id: 2

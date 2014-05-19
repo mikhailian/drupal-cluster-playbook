@@ -1,0 +1,34 @@
+--- 
+- name: Install Apache Solr
+  apt: name={{ item }}
+  with_items:
+    - openjdk-6-jdk
+    - jetty
+    - solr-jetty
+
+- name:  Copy jetty init script
+  copy: src=jetty dest=/etc/init.d/jetty owner=root group=root mode=0755
+  notify: restart jetty
+
+- name:  Copy jetty protowords.txt
+  copy: src=protwords.txt dest=/etc/solr/conf/protwords.txt owner=root group=root mode=0644
+  notify: restart jetty
+
+- name:  Copy jetty schema.xml
+  copy: src=schema.xml dest=/etc/solr/conf/schema.xml owner=root group=root mode=0644
+  notify: restart jetty
+
+- name:  Copy jetty solrconfig.xml
+  copy: src=solrconfig.xml dest=/etc/solr/conf/solrconfig.xml owner=root group=root mode=0644
+  notify: restart jetty
+
+
+- name: Fix the broken solr link
+  file: src=/usr/share/solr/web  dest=/var/lib/jetty/webapps/solr state=link
+  notify: restart jetty
+
+- name: Copy /etc/default/jetty
+  template: src=jetty dest=/etc/default/jetty
+  notify: restart jetty
+
+

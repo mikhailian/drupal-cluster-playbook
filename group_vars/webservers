@@ -1,0 +1,20 @@
+# APC config
+apc_shm_size: 512M
+# PHP config
+php_memory_limit: 448M
+php_max_execution_time: 300
+php_upload_max_filesize: 64M
+# PHP-FPM config
+pm_max_children: 170
+pm_start_servers: 50
+pm_min_spare_servers: 50
+pm_max_spare_servers: 170
+pm_max_requests: 10000
+# GlusterFS config
+gluster__mountpoint: /var/www/foo
+gluster_brick_dir: /var/lib/foo
+gluster_volume: foo
+# nginx
+webserver: foo.com
+# varnish
+varnish_secret: 20398423048-23908230194809ffhskjh

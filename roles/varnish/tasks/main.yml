@@ -1,0 +1,18 @@
+---
+- name: Install Varnish
+  apt: name=varnish
+
+- name: Create Varnish configuration file
+  template: src=default.vcl dest=/etc/varnish/default.vcl
+  notify:
+     - restart varnish
+
+- name: Create Varnish Debian configuration file
+  template: src=varnish dest=/etc/default/varnish
+  notify:
+     - restart varnish
+
+- name: Create Varnish Debian configuration file
+  template: src=secret dest=/etc/varnish/secret
+  notify:
+     - restart varnish

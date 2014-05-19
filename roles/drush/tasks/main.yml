@@ -1,0 +1,18 @@
+---
+- name: Install PHP-Pear
+  apt: name={{ item }}
+  with_items:
+    - php-pear
+
+- name: Setup drush PEAR channel.
+  command: pear channel-discover pear.drush.org
+  register: channel_result
+  changed_when: "'initialized' not in channel_result.stdout"
+  # TODO: This will always error out the first time it's run.
+  failed_when: "'already initialized' not in channel_result.stdout"
+
+- name: Install drush.
+  command: pear install drush/drush
+  register: drush_result
+  changed_when: "'installed' not in drush_result.stdout"
+  failed_when: "'6.2.0.0' not in drush_result.stdout"

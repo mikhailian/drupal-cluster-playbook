@@ -1,0 +1,27 @@
+---
+- name: Install php-fpm
+  apt: name={{ item }}
+  with_items:
+    - php5-fpm
+    - php5-apc
+    - php5-gd
+    - php5-mysql
+    - php5-memcache
+    - php5-curl
+
+- name: Copy apc.ini
+  template: src=apc.ini dest=/etc/php5/mods-available/apc.ini
+  notify: restart php5-fpm
+
+- name: Copy php.ini
+  template: src=php.ini dest=/etc/php5/fpm/php.ini
+  notify: restart php5-fpm
+
+- name: Copy php-fpm.conf
+  template: src=www.conf dest=/etc/php5/fpm/php-fpm.conf
+  notify: restart php5-fpm
+
+- name: Copy www.conf
+  template: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf
+  notify: restart php5-fpm
+

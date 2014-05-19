@@ -1,0 +1,23 @@
+--- 
+- name: Install GlusterFS
+  apt: name={{ item }}
+  with_items:
+    - glusterfs-server
+    - glusterfs-client
+
+- name: Create GlusterFS brick
+  file: path={{ gluster_brick_dir }} state=directory
+
+# TODO this should be rewritten with a config file
+#- name: Configure peers from the first host
+#  command: gluster peer probe {{ item }}
+#  with_items:  groups['webservers']
+#  when: inventory_hostname  == groups['webservers'][0]
+#  ignore_errors: yes
+
+- name: Start GlusterFS
+  service: name=glusterfs-server state=started enabled=true
+
+
+- name: Mount 
+  mount: name=/var/www/{{ gluster_mountpoint }} src={{ inventory_hostname }}:{{ gluster_volume }} fstype=glusterfs state=present
